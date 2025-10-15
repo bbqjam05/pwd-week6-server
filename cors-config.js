@@ -6,7 +6,8 @@ const getCorsConfig = () => {
   const allowedOrigins = [
     'http://localhost:5173',    // 로컬 Vite 개발 서버
     'http://localhost:3000',    // 로컬 React 개발 서버 (백업)
-    'http://127.0.0.1:5173',    // 로컬 Vite (IP 주소)
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5500'    // 로컬 Vite (IP 주소)
   ];
 
   // 환경변수에서 추가 URL들 가져오기
