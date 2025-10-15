@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인증 시스템 테스트</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+    }
+    h1 { 
+      color: #333; 
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+    h2 { 
+      color: #667eea; 
+      margin-top: 30px; 
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .success { 
+      background: #d4edda; 
+      color: #155724; 
+      border: 1px solid #c3e6cb;
+    }
+    .error { 
+      background: #f8d7da; 
+      color: #721c24; 
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    input {
+      padding: 12px;
+      margin: 5px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 250px;
+      transition: border 0.3s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      padding: 12px 24px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s;
+      color: white;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    }
+    .btn-google {
+      background: #4285f4;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid #dee2e6;
+      font-size: 13px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+    .user-info {
+      background: #e7f3ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 인증 시스템 테스트</h1>
+    <p style="color: #666; margin-bottom: 20px;">PWD Week 6 - Passport.js 로그인 기능 테스트</p>
+    
+    <div id="status"></div>
+    
+    <div id="userInfo" class="user-info" style="display: none;">
+      <h3>👤 로그인 정보</h3>
+      <div id="userDetails"></div>
+    </div>
+    
+    <!-- 회원가입 -->
+    <div class="section">
+      <h2>📝 회원가입</h2>
+      <input type="email" id="regEmail" placeholder="이메일" value="test@example.com">
+      <input type="password" id="regPassword" placeholder="비밀번호 (최소 6자)" value="test1234">
+      <input type="text" id="regName" placeholder="이름" value="테스터">
+      <button class="btn-primary" onclick="register()">회원가입</button>
+    </div>
+    
+    <!-- 로그인 -->
+    <div class="section">
+      <h2>🔑 로그인</h2>
+      <input type="email" id="loginEmail" placeholder="이메일" value="test@example.com">
+      <input type="password" id="loginPassword" placeholder="비밀번호" value="test1234">
+      <button class="btn-success" onclick="login()">로그인</button>
+    </div>
+    
+    <!-- 사용자 정보 -->
+    <div class="section">
+      <h2>👤 사용자 정보</h2>
+      <button class="btn-primary" onclick="getCurrentUser()">내 정보 조회</button>
+      <button class="btn-danger" onclick="logout()">로그아웃</button>
+    </div>
+    
+    <!-- 프로필 수정 -->
+    <div class="section">
+      <h2>✏️ 프로필 수정</h2>
+      <input type="text" id="updateName" placeholder="새 이름" value="수정된이름">
+      <input type="text" id="updateAvatar" placeholder="아바타 URL (선택)" value="">
+      <button class="btn-primary" onclick="updateProfile()">프로필 수정</button>
+    </div>
+    
+    <!-- 비밀번호 변경 -->
+    <div class="section">
+      <h2>🔒 비밀번호 변경</h2>
+      <input type="password" id="currentPassword" placeholder="현재 비밀번호" value="test1234">
+      <input type="password" id="newPassword" placeholder="새 비밀번호 (최소 6자)" value="newpass1234">
+      <button class="btn-primary" onclick="changePassword()">비밀번호 변경</button>
+    </div>
+    
+    <!-- 소셜 로그인 -->
+    <div class="section">
+      <h2>🌐 소셜 로그인</h2>
+      <button class="btn-google" onclick="googleLogin()">🔵 구글 로그인</button>
+      <p style="color: #666; font-size: 12px; margin-top: 10px;">
+        * OAuth 클라이언트 ID가 설정되어 있어야 작동합니다.
+      </p>
+    </div>
+    
+    <!-- 응답 -->
+    <h2>📡 서버 응답</h2>
+    <pre id="response">여기에 서버 응답이 표시됩니다...</pre>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffc107;">
+      <h3 style="color: #856404;">💡 테스트 가이드</h3>
+      <ol style="color: #856404; margin-left: 20px; line-height: 1.8;">
+        <li>서버가 실행 중인지 확인 (npm run dev)</li>
+        <li>회원가입 버튼을 클릭하여 새 계정 생성</li>
+        <li>로그인 버튼으로 로그인</li>
+        <li>'내 정보 조회'로 현재 사용자 확인</li>
+        <li>프로필 수정 및 비밀번호 변경 테스트</li>
+        <li>로그아웃 후 다시 로그인해보기</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    
+    // 페이지 로드 시 현재 사용자 정보 확인
+    window.addEventListener('load', () => {
+      getCurrentUser(true);
+    });
+    
+    async function register() {
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      const name = document.getElementById('regName').value;
+      
+      if (!email || !password || !name) {
+        showStatus('모든 필드를 입력해주세요.', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password, name })
+        });
+        
+        const data = await response.json();
+        showResponse(data);
+        
+        if (data.success) {
+          showUserInfo(data.data.user);
+        }
+      } catch (error) {
+        showStatus('서버에 연결할 수 없습니다. 서버가 실행 중인지 확인하세요.', 'error');
+        showResponse({ error: error.message });
+      }
+    }
+    
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!email || !password) {
+        showStatus('이메일과 비밀번호를 입력해주세요.', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        showResponse(data);
+        
+        if (data.success) {
+          showUserInfo(data.data.user);
+        }
+      } catch (error) {
+        showStatus('서버에 연결할 수 없습니다.', 'error');
+        showResponse({ error: error.message });
+      }
+    }
+    
+    async function getCurrentUser(silent = false) {
+      try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (!silent) {
+          showResponse(data);
+        }
+        
+        if (data.success) {
+          showUserInfo(data.data.user);
+        } else {
+          hideUserInfo();
+        }
+      } catch (error) {
+        if (!silent) {
+          showStatus('서버에 연결할 수 없습니다.', 'error');
+          showResponse({ error: error.message });
+        }
+      }
+    }
+    
+    async function updateProfile() {
+      const name = document.getElementById('updateName').value;
+      const avatar = document.getElementById('updateAvatar').value;
+      
+      const body = {};
+      if (name) body.name = name;
+      if (avatar) body.avatar = avatar;
+      
+      try {
+        const response = await fetch(`${API_URL}/users/profile`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        showResponse(data);
+        
+        if (data.success) {
+          showUserInfo(data.data.user);
+        }
+      } catch (error) {
+        showStatus('서버에 연결할 수 없습니다.', 'error');
+        showResponse({ error: error.message });
+      }
+    }
+    
+    async function changePassword() {
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      
+      if (!currentPassword || !newPassword) {
+        showStatus('현재 비밀번호와 새 비밀번호를 모두 입력해주세요.', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_URL}/users/password`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+        
+        const data = await response.json();
+        showResponse(data);
+        
+        if (data.success) {
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+        }
+      } catch (error) {
+        showStatus('서버에 연결할 수 없습니다.', 'error');
+        showResponse({ error: error.message });
+      }
+    }
+    
+    async function logout() {
+      try {
+        const response = await fetch(`${API_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        showResponse(data);
+        
+        if (data.success) {
+          hideUserInfo();
+        }
+      } catch (error) {
+        showStatus('서버에 연결할 수 없습니다.', 'error');
+        showResponse({ error: error.message });
+      }
+    }
+    
+    function googleLogin() {
+      window.location.href = `${API_URL}/auth/google`;
+    }
+    
+    
+    function showResponse(data) {
+      document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+      
+      if (data.success) {
+        showStatus('✅ ' + (data.message || '성공!'), 'success');
+      } else if (data.error) {
+        showStatus('❌ ' + data.error, 'error');
+      } else if (data.message) {
+        showStatus('❌ ' + data.message, 'error');
+      }
+    }
+    
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+    
+    function showUserInfo(user) {
+      const userInfoDiv = document.getElementById('userInfo');
+      const userDetailsDiv = document.getElementById('userDetails');
+      
+      userInfoDiv.style.display = 'block';
+      userDetailsDiv.innerHTML = `
+        <p><strong>이메일:</strong> ${user.email}</p>
+        <p><strong>이름:</strong> ${user.name}</p>
+        <p><strong>제공자:</strong> ${user.provider}</p>
+        <p><strong>가입일:</strong> ${new Date(user.createdAt).toLocaleString('ko-KR')}</p>
+        ${user.avatar ? `<p><strong>아바타:</strong> <img src="${user.avatar}" alt="avatar" style="width: 50px; height: 50px; border-radius: 50%;"></p>` : ''}
+      `;
+    }
+    
+    function hideUserInfo() {
+      document.getElementById('userInfo').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
