@@ -132,6 +132,47 @@ class AuthController {
     });
   });
 
+
+  // ✨✨✨ 새로 추가된 부분 시작 ✨✨✨
+  /**
+   * Google OAuth 인증 URL 생성
+   * GET /api/auth/google/url
+   */
+  getGoogleAuthUrl = (req, res) => {
+    const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const options = {
+      redirect_uri: process.env.GOOGLE_CALLBACK_URL,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      access_type: 'offline',
+      response_type: 'code',
+      prompt: 'consent',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
+      ].join(' '),
+    };
+    const qs = new URLSearchParams(options);
+    res.json({ url: `${rootUrl}?${qs.toString()}` });
+  };
+
+  /**
+   * Naver OAuth 인증 URL 생성
+   * GET /api/auth/naver/url
+   */
+  getNaverAuthUrl = (req, res) => {
+    const rootUrl = "https://nid.naver.com/oauth2.0/authorize";
+    const options = {
+      response_type: 'code',
+      client_id: process.env.NAVER_CLIENT_ID,
+      redirect_uri: process.env.NAVER_CALLBACK_URL,
+      state: 'RANDOM_STATE' // CSRF 공격 방지를 위한 상태 토큰 (실제로는 랜덤 생성 필요)
+    };
+    const qs = new URLSearchParams(options);
+    res.json({ url: `${rootUrl}?${qs.toString()}` });
+  };
+  // ✨✨✨ 새로 추가된 부분 끝 ✨✨✨
+
+
   /**
    * 구글 OAuth 콜백
    * GET /api/auth/google/callback
