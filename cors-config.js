@@ -8,7 +8,7 @@ const getCorsConfig = () => {
     'http://localhost:3000',    // 로컬 React 개발 서버 (백업)
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5500',
-    'https://pwd-week6-bbqjam05.netlify.app/',
+    'https://pwd-week6-bbqjam05.netlify.app',
   ];
 
   // 환경변수에서 추가 URL들 가져오기
