@@ -19,6 +19,10 @@ router.post('/logout', isAuthenticated, authController.logout);
 // 현재 사용자 정보
 router.get('/me', isAuthenticated, authController.getCurrentUser);
 
+router.get('/google/url', authController.getGoogleAuthUrl);
+
+router.get('/naver/url', authController.getNaverAuthUrl);
+
 // ==================== 구글 OAuth ====================
 // 구글 로그인 시작
 router.get(
